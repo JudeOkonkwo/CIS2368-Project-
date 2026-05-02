@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VIP Event & Membership Manager</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <p class="eyebrow">CIS 2368 Final Project</p>
+      <h1>VIP Event & Membership Manager</h1>
+      <p class="subtitle">
+        Manage VIP members, events, and registrations from one clean dashboard.
+      </p>
+    </div>
+  </header>
+
+  <main class="container">
+    <% if (message) { %>
+      <div class="alert success"><%= message %></div>
+    <% } %>
+
+    <% if (error) { %>
+      <div class="alert error"><%= error %></div>
+    <% } %>
+
+    <section class="stats-grid">
+      <div class="stat-card">
+        <span>Total Members</span>
+        <strong><%= members.length %></strong>
+      </div>
+
+      <div class="stat-card">
+        <span>Total Events</span>
+        <strong><%= events.length %></strong>
+      </div>
+
+      <div class="stat-card">
+        <span>Total Registrations</span>
+        <strong><%= registrations.length %></strong>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Members</p>
+          <h2>Add a Member</h2>
+        </div>
+      </div>
+
+      <form class="form-grid" action="/members/add" method="POST">
+        <label>
+          Name
+          <input type="text" name="name" required placeholder="Example: Ada Okafor">
+        </label>
+
+        <label>
+          Title
+          <input type="text" name="title" placeholder="Example: Director">
+        </label>
+
+        <label>
+          Level
+          <select name="level" required>
+            <option value="">Select level</option>
+            <option value="Bronze">Bronze</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+          </select>
+        </label>
+
+        <label class="wide">
+          Details
+          <textarea name="details" rows="3" placeholder="Short member notes"></textarea>
+        </label>
+
+        <button type="submit">Add Member</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Title</th>
+              <th>Level</th>
+              <th>Details</th>
+              <th>Update</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% members.forEach(member => { %>
+              <tr>
+                <td><%= member.name %></td>
+                <td><%= member.title %></td>
+                <td><span class="badge <%= member.level.toLowerCase() %>"><%= member.level %></span></td>
+                <td><%= member.details %></td>
+                <td>
+                  <form class="inline-form" action="/members/update" method="POST">
+                    <input type="hidden" name="id" value="<%= member.id %>">
+                    <input type="text" name="name" value="<%= member.name %>" required>
+                    <input type="text" name="title" value="<%= member.title %>">
+                    <select name="level" required>
+                      <option value="Bronze" <%= member.level === "Bronze" ? "selected" : "" %>>Bronze</option>
+                      <option value="Silver" <%= member.level === "Silver" ? "selected" : "" %>>Silver</option>
+                      <option value="Gold" <%= member.level === "Gold" ? "selected" : "" %>>Gold</option>
+                    </select>
+                    <input type="text" name="details" value="<%= member.details %>">
+                    <button type="submit" class="small">Save</button>
+                  </form>
+                </td>
+                <td>
+                  <form action="/members/delete" method="POST">
+                    <input type="hidden" name="id" value="<%= member.id %>">
+                    <button type="submit" class="small danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+
+            <% if (members.length === 0) { %>
+              <tr>
+                <td colspan="6" class="empty">No members yet.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Events</p>
+          <h2>Add an Event</h2>
+        </div>
+      </div>
+
+      <form class="form-grid" action="/events/add" method="POST">
+        <label>
+          Event Name
+          <input type="text" name="name" required placeholder="Example: Gold Gala">
+        </label>
+
+        <label>
+          Capacity
+          <input type="number" name="capacity" min="1" required placeholder="Example: 50">
+        </label>
+
+        <label>
+          Required Level
+          <select name="level" required>
+            <option value="">Select level</option>
+            <option value="Bronze">Bronze</option>
+            <option value="Silver">Silver</option>
+            <option value="Gold">Gold</option>
+          </select>
+        </label>
+
+        <label>
+          Date
+          <input type="date" name="date" required>
+        </label>
+
+        <button type="submit">Add Event</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Date</th>
+              <th>Capacity</th>
+              <th>Required Level</th>
+              <th>Update</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% events.forEach(event => { %>
+              <tr>
+                <td><%= event.name %></td>
+                <td><%= event.date %></td>
+                <td><%= event.capacity %></td>
+                <td><span class="badge <%= event.level.toLowerCase() %>"><%= event.level %></span></td>
+                <td>
+                  <form class="inline-form" action="/events/update" method="POST">
+                    <input type="hidden" name="id" value="<%= event.id %>">
+                    <input type="text" name="name" value="<%= event.name %>" required>
+                    <input type="number" name="capacity" min="1" value="<%= event.capacity %>" required>
+                    <select name="level" required>
+                      <option value="Bronze" <%= event.level === "Bronze" ? "selected" : "" %>>Bronze</option>
+                      <option value="Silver" <%= event.level === "Silver" ? "selected" : "" %>>Silver</option>
+                      <option value="Gold" <%= event.level === "Gold" ? "selected" : "" %>>Gold</option>
+                    </select>
+                    <input type="date" name="date" value="<%= event.date %>" required>
+                    <button type="submit" class="small">Save</button>
+                  </form>
+                </td>
+                <td>
+                  <form action="/events/delete" method="POST">
+                    <input type="hidden" name="id" value="<%= event.id %>">
+                    <button type="submit" class="small danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+
+            <% if (events.length === 0) { %>
+              <tr>
+                <td colspan="6" class="empty">No events yet.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Registrations</p>
+          <h2>Register a Member for an Event</h2>
+        </div>
+      </div>
+
+      <form class="form-grid" action="/registrations/add" method="POST">
+        <label>
+          Member
+          <select name="member_id" required>
+            <option value="">Select member</option>
+            <% members.forEach(member => { %>
+              <option value="<%= member.id %>">
+                <%= member.name %> - <%= member.level %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+
+        <label>
+          Event
+          <select name="event_id" required>
+            <option value="">Select event</option>
+            <% events.forEach(event => { %>
+              <option value="<%= event.id %>">
+                <%= event.name %> - <%= event.date %> - <%= event.level %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+
+        <button type="submit">Add Registration</button>
+      </form>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Member</th>
+              <th>Member Level</th>
+              <th>Event</th>
+              <th>Event Date</th>
+              <th>Update</th>
+              <th>Delete</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <% registrations.forEach(registration => { %>
+              <tr>
+                <td><%= registration.member_name %></td>
+                <td><span class="badge <%= registration.member_level.toLowerCase() %>"><%= registration.member_level %></span></td>
+                <td><%= registration.event_name %></td>
+                <td><%= registration.event_date %></td>
+                <td>
+                  <form class="inline-form" action="/registrations/update" method="POST">
+                    <input type="hidden" name="id" value="<%= registration.id %>">
+
+                    <select name="member_id" required>
+                      <% members.forEach(member => { %>
+                        <option value="<%= member.id %>" <%= member.id === registration.member_id ? "selected" : "" %>>
+                          <%= member.name %> - <%= member.level %>
+                        </option>
+                      <% }) %>
+                    </select>
+
+                    <select name="event_id" required>
+                      <% events.forEach(event => { %>
+                        <option value="<%= event.id %>" <%= event.id === registration.event_id ? "selected" : "" %>>
+                          <%= event.name %> - <%= event.date %> - <%= event.level %>
+                        </option>
+                      <% }) %>
+                    </select>
+
+                    <button type="submit" class="small">Save</button>
+                  </form>
+                </td>
+                <td>
+                  <form action="/registrations/delete" method="POST">
+                    <input type="hidden" name="id" value="<%= registration.id %>">
+                    <button type="submit" class="small danger">Delete</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+
+            <% if (registrations.length === 0) { %>
+              <tr>
+                <td colspan="6" class="empty">No registrations yet.</td>
+              </tr>
+            <% } %>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-heading">
+        <div>
+          <p class="eyebrow">Event Lookup</p>
+          <h2>View Registered Members for an Event</h2>
+        </div>
+      </div>
+
+      <form class="form-grid" action="/event-members" method="GET">
+        <label>
+          Choose Event
+          <select name="eventId" required>
+            <option value="">Select event</option>
+            <% events.forEach(event => { %>
+              <option value="<%= event.id %>">
+                <%= event.name %> - <%= event.date %>
+              </option>
+            <% }) %>
+          </select>
+        </label>
+
+        <button type="submit">View Members</button>
+      </form>
+
+      <% if (selectedEventName) { %>
+        <div class="lookup-results">
+          <h3>Registered Members for <%= selectedEventName %></h3>
+
+          <% if (selectedEventMembers.length > 0) { %>
+            <div class="cards">
+              <% selectedEventMembers.forEach(member => { %>
+                <article class="member-card">
+                  <h4><%= member.name %></h4>
+                  <p><%= member.title %></p>
+                  <span class="badge <%= member.level.toLowerCase() %>"><%= member.level %></span>
+                  <small><%= member.details %></small>
+                </article>
+              <% }) %>
+            </div>
+          <% } else { %>
+            <p class="empty">No members are registered for this event yet.</p>
+          <% } %>
+        </div>
+      <% } %>
+    </section>
+  </main>
+</body>
+</html>
